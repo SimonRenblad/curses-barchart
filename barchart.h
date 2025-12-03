@@ -50,6 +50,7 @@ struct barchart* alloc_barchart(int num_labels) {
         values,
         labels
     };
+    return chart;
 }
 
 void free_barchart(struct barchart* chart) {
@@ -207,10 +208,6 @@ void west_bar(WINDOW * win, int y, int x, int norm, float max_value, float value
 } 
 
 void draw_chart(WINDOW * win, int y, int x, struct barchart* chart) {
-    // can make version that gets y and x from current cursor position as well
-    // need to calculate the length based on the width / direction
-    // draw both axes and a x at the origin, need to account for margin space (ignore for now)
-
     // find max_value
     float max_value = 0;
     for(int i = 0; i < chart->num_labels; i++) {
@@ -222,15 +219,16 @@ void draw_chart(WINDOW * win, int y, int x, struct barchart* chart) {
     switch (chart->dir) {
     case NORTH:
         gap = chart->width / chart->num_labels;
-        norm = chart->width;
+        norm = chart->height;
         start = y + chart->height;
         for(int k = 0; k < chart->num_labels; k++) {
+            // mvwprintw(win, start, x + (gap * k), "34");
             north_bar(win, start, x + (gap * k), norm, max_value, chart->values[k]);
         }
         break;
     case SOUTH:
         gap = chart->width / chart->num_labels;
-        norm = chart->width;
+        norm = chart->height;
         start = y;
         for(int k = 0; k < chart->num_labels; k++) {
             south_bar(win, start, x + (gap * k), norm, max_value, chart->values[k]);
@@ -238,7 +236,7 @@ void draw_chart(WINDOW * win, int y, int x, struct barchart* chart) {
         break;
     case WEST:
         gap = chart->height / chart->num_labels;
-        norm = chart->height;
+        norm = chart->width;
         start = x + chart->width;
         for(int k = 0; k < chart->num_labels; k++) {
             west_bar(win, y + (gap * k), start, norm, max_value, chart->values[k]);
