@@ -1,18 +1,16 @@
+#define _XOPEN_SOURCE_EXTENDED
 #include <ncurses.h>
 #include <math.h>
 #include <stdint.h>
-
-void draw_bar(WINDOW * inputwin, float max_value, int max_lines, int col_gap, float y_value, int column, int origin_y, int origin_x, bool show_val, int sigfigs);
-void draw_axis(WINDOW * inputwin, int max_lines, int max_columns, int col_gap, int origin_y, int origin_x);
-void draw_max_value(WINDOW * inputwin, float max_value, int sigfigs, int max_lines, int origin_y, int origin_x);
-void draw_axis_name(WINDOW * inputwin, wchar_t* name, int column, int col_gap, int origin_y, int origin_x, bool staggered);
-void draw_chart(WINDOW * inputwin, int origin_x, int origin_y, int col_gap, int max_lines, float max_value, int num_cols, float* values, wchar_t** col_names, bool staggered, bool show_val, int sigfigs);
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdlib.h>
 
 // struct barchart {
 //     int max_lines;
 //     int column_gap;
-//     int origin_x;
-//     int origin_y;
+//     int x;
+//     int y;
 //     float max_value;
 //     int num_columns;
 //     float* y_values;
@@ -23,77 +21,78 @@ void draw_chart(WINDOW * inputwin, int origin_x, int origin_y, int col_gap, int 
 //     int sigfigs;
 //     WINDOW * inputwin;
 // }
+
+enum direction {
+    NORTH,
+    SOUTH,
+    EAST,
+    WEST
+};
+
+struct barchart {
+    int width;
+    int height;
+    enum direction dir;
+    int num_labels;
+    float* values;
+    wchar_t** labels;
+};
+
+struct barchart* alloc_barchart(int num_labels) {
+    float* values = calloc(num_labels, sizeof(float));
+    wchar_t** labels = malloc(num_labels * sizeof(wchar_t*));
+    struct barchart * chart = malloc(sizeof(struct barchart));
+    *chart = (struct barchart) {
+        0,
+        0,
+        NORTH,
+        num_labels,
+        values,
+        labels
+    };
+}
+
+void free_barchart(struct barchart* chart) {
+    free(chart->values);
+    free(chart->labels);
+    free(chart);
+}
         
-        // BarChart(WINDOW * window) {
-        //     inputwin = window;
-        //     origin_x = 0;
-        //     origin_y = 0;
-        //     num_columns = 0;
-        //     staggered_axis_titles = true;
-        //     show_values_above_bar = true;
-        //     sigfigs = 4;
-        //     column_gap = 5;
-        //     y_values = {};
-        //     column_names = {};
-        // }
-
-// void set_origin(int x, int y){
-//     origin_x = x;
-//     origin_y = y;
+// void draw_axis_name(WINDOW * inputwin,  wchar_t* name, int column, int col_gap, bool staggered){
+//     int x_value = x+(column*col_gap)+2;
+//     int y_value = y + 1;
+//     if(staggered) {
+//         y_value += column;
+//     }
+//     mvwaddwstr(inputwin, y_value, x_value, name);
 // }
-
-// void add_bar(float y_value, std::wstring column_name){
-//     y_values.push_back(y_value);
-//     column_names.push_back(column_name);
-//     num_columns +=1;
-// }
-
-// void display(){
-//     draw_chart(inputwin, origin_x, origin_y, column_gap, max_lines, 
-//             max_value, num_columns, y_values, column_names, 
-//             staggered_axis_titles, show_values_above_bar, sigfigs); 
-// }
-
-void draw_chart(WINDOW * inputwin, int x, int y, int col_gap, int max_lines, float max_value, int num_cols, float* values, wchar_t** col_names, bool staggered, bool show_val, int sigfigs) {
-    draw_axis(inputwin, max_lines, num_cols, col_gap, x, y);
-    draw_max_value(inputwin, max_value, sigfigs, max_lines, x, y);
-    for(int i = 0; i < num_cols; i++){
-        draw_bar(inputwin, max_value, max_lines, col_gap, values[i], i, x, y, show_val, sigfigs);
-        draw_axis_name(inputwin, col_names[i], i, col_gap, x, y, staggered);
-    }
-    wmove(inputwin, y, x);
-}
-
-void draw_axis_name(WINDOW * inputwin, wchar_t* name, int column, int col_gap, int origin_y, int origin_x, bool staggered){
-    int x_value = origin_x+(column*col_gap)+2;
-    int y_value = origin_y + 1;
-    if(staggered) {
-        y_value += column;
-    }
-    mvwaddwstr(inputwin, y_value, x_value, ws);
-}
 
 // TODO
-// void clear_chart(WINDOW * inputwin, int max_lines, int max_columns, int col_gap, int origin_y, int origin_x){
+// void clear_chart(WINDOW * inputwin, int max_lines, int max_columns, int col_gap, int y, int x){
 // 
 // }
 
-void draw_axis(WINDOW * inputwin, int max_lines, int max_columns, int col_gap, int origin_y, int origin_x){
+// void draw_axis(WINDOW * inputwin, int y, int x, int max_lines, int max_columns, int col_gap){
 
-    mvwaddch(inputwin, origin_y - max_lines, origin_x, ACS_TTEE);
-    mvwvline(inputwin, origin_y - max_lines + 1, origin_x, ACS_VLINE, max_lines-1);
-    mvwaddch(inputwin, origin_y, origin_x, ACS_LLCORNER);
-    mvwhline(inputwin, origin_y, origin_x+1, ACS_HLINE, max_columns * col_gap);
-    mvwaddch(inputwin, origin_y, origin_x + (max_columns * col_gap) + 1, ACS_RTEE); 
-}
+//     mvwaddch(inputwin, y - max_lines, x, ACS_TTEE);
+//     mvwvline(inputwin, y - max_lines + 1, x, ACS_VLINE, max_lines-1);
+//     mvwaddch(inputwin, y, x, ACS_LLCORNER);
+//     mvwhline(inputwin, y, x+1, ACS_HLINE, max_columns * col_gap);
+//     mvwaddch(inputwin, y, x + (max_columns * col_gap) + 1, ACS_RTEE); 
+// }
 
-void draw_max_value(WINDOW * inputwin, int y, int x, float max_value, int sigfigs, int max_lines){
-    mvwprintw(inputwin, y - max_lines, origin_x - sigfigs - 1, "%*f", sigfigs, max_value);  
-}
+// void draw_max_value(WINDOW * inputwin, int y, int x, float max_value, int sigfigs, int max_lines){
+//     mvwprintw(inputwin, y - max_lines, x - sigfigs - 1, "%*f", sigfigs, max_value);  
+// }
 
-void draw_bar(WINDOW * inputwin, float max_value, int max_lines, int col_gap, float y_value, int column, int origin_y, int origin_x, bool show_val, int sigfigs){
+    // // draw number
+    // if(show_val) {
+    //     int length = fmin(col_gap - 1, sigfigs);
+    //     mvwprintw(inputwin, y - ifull_lines-2, x_value, "%*f", length, y_value); 
+    // }
 
-    float line_height = y_value / max_value * max_lines;
+void north_bar(WINDOW * win, int y, int x, int norm, float max_value, float value) {
+    float line_height = value * norm / max_value;
 
     float full_lines = floor(line_height);
 
@@ -103,9 +102,7 @@ void draw_bar(WINDOW * inputwin, float max_value, int max_lines, int col_gap, fl
 
     int ifull_lines = (int) full_lines;
 
-    int x_value = origin_x+(column*col_gap)+2;
-
-    const wchar_t * block_choice = nullptr;
+    const wchar_t * block_choice;
 
     if(rem_eights == 1) {
         block_choice = L"\u2581";
@@ -123,14 +120,145 @@ void draw_bar(WINDOW * inputwin, float max_value, int max_lines, int col_gap, fl
         block_choice = L"\u2587";
     }
 
-    for(int i = origin_y-1; i > origin_y - ifull_lines-1; i--){
-        mvwaddwstr(inputwin, i, x_value, L"\u2588");
+    for(int i = y; i > y - ifull_lines; i--){
+        mvwaddwstr(win, i, x, L"\u2588");
     }
-    mvwaddwstr(inputwin, origin_y - ifull_lines-1, x_value, block_choice);
+    if(rem_eights != 0) {
+        mvwaddwstr(win, y - ifull_lines, x, block_choice);
+    }
+} 
 
-    // draw number
-    if(show_val) {
-        int length = min(col_gap - 1, sigfigs);
-        mvwprintw(inputwin, origin_y - ifull_lines-2, x_value, "%*f", length, y_value); 
+void south_bar(WINDOW * win, int y, int x, int norm, float max_value, float value) {
+    float line_height = value * norm / max_value;
+
+    float full_lines = floor(line_height);
+
+    float remaining = line_height - full_lines;
+
+    int rem_half = (int)floor(remaining * 2);
+
+    int ifull_lines = (int) full_lines;
+
+    for(int i = y; i < y + ifull_lines; i++){
+        mvwaddwstr(win, i, x, L"\u2588");
     }
+
+    if (rem_half == 1) {
+        mvwaddwstr(win, y + ifull_lines, x, L"\u2580");
+    }
+} 
+
+void east_bar(WINDOW * win, int y, int x, int norm, float max_value, float value) {
+    float line_height = value * norm / max_value;
+
+    float full_lines = floor(line_height);
+
+    float remaining = line_height - full_lines;
+
+    int rem_eights = (int)floor(remaining * 8);
+
+    int ifull_lines = (int) full_lines;
+
+    const wchar_t * block_choice;
+
+    if(rem_eights == 1) {
+        block_choice = L"\u258F";
+    } else if(rem_eights == 2) {
+        block_choice = L"\u258E";
+    } else if(rem_eights == 3) {
+        block_choice = L"\u258D";
+    } else if(rem_eights == 4) {
+        block_choice = L"\u258C";
+    } else if(rem_eights == 5) {
+        block_choice = L"\u258B";
+    } else if(rem_eights == 6) {
+        block_choice = L"\u258A";
+    } else if(rem_eights == 7) {
+        block_choice = L"\u2589";
+    }
+
+    for(int i = x; i < x + ifull_lines; i++){
+        mvwaddwstr(win, y, i, L"\u2588");
+    }
+
+    if(rem_eights != 0) {
+        mvwaddwstr(win, y, x + ifull_lines, block_choice);
+    }
+} 
+
+void west_bar(WINDOW * win, int y, int x, int norm, float max_value, float value) {
+    float line_height = value * norm / max_value;
+
+    float full_lines = floor(line_height);
+
+    float remaining = line_height - full_lines;
+
+    int rem_half = (int)floor(remaining * 2);
+
+    int ifull_lines = (int) full_lines;
+
+    for(int i = x; i > x - ifull_lines; i--){
+        mvwaddwstr(win, y, i, L"\u2588");
+    }
+
+    if (rem_half == 1) {
+        mvwaddwstr(win, y, x - ifull_lines, L"\u2590");
+    }
+} 
+
+void draw_chart(WINDOW * win, int y, int x, struct barchart* chart) {
+    // can make version that gets y and x from current cursor position as well
+    // need to calculate the length based on the width / direction
+    // draw both axes and a x at the origin, need to account for margin space (ignore for now)
+
+    // find max_value
+    float max_value = 0;
+    for(int i = 0; i < chart->num_labels; i++) {
+        max_value = fmax(chart->values[i], max_value);
+    };
+
+    int gap, norm, start;
+
+    switch (chart->dir) {
+    case NORTH:
+        gap = chart->width / chart->num_labels;
+        norm = chart->width;
+        start = y + chart->height;
+        for(int k = 0; k < chart->num_labels; k++) {
+            north_bar(win, start, x + (gap * k), norm, max_value, chart->values[k]);
+        }
+        break;
+    case SOUTH:
+        gap = chart->width / chart->num_labels;
+        norm = chart->width;
+        start = y;
+        for(int k = 0; k < chart->num_labels; k++) {
+            south_bar(win, start, x + (gap * k), norm, max_value, chart->values[k]);
+        }
+        break;
+    case WEST:
+        gap = chart->height / chart->num_labels;
+        norm = chart->height;
+        start = x + chart->width;
+        for(int k = 0; k < chart->num_labels; k++) {
+            west_bar(win, y + (gap * k), start, norm, max_value, chart->values[k]);
+        }
+        break;
+    case EAST:
+        gap = chart->height / chart->num_labels;
+        norm = chart->height;
+        start = x;
+        for(int k = 0; k < chart->num_labels; k++) {
+            east_bar(win, y + (gap * k), start, norm, max_value, chart->values[k]);
+        }
+        break;
+    }
+    // draw_axis(win, y, x, length, col_gap);
+    // draw_max_value(win, y, x, max_value, sigfigs, max_lines);
+    // for(int i = 0; i < chart->num_labels; i++){
+    //     draw_bar(win, y + (y_gap * i), x + (x_gap * i), y_delta, x_delta, norm, chart->values[i]);
+    //     // draw_axis_name(win, y, x, col_names[i], i, col_gap, staggered);
+    // }
+    // resets to origin
+    wmove(win, y, x);
 }
