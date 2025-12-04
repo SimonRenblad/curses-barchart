@@ -6,22 +6,6 @@
 #include <stddef.h>
 #include <stdlib.h>
 
-// struct barchart {
-//     int max_lines;
-//     int column_gap;
-//     int x;
-//     int y;
-//     float max_value;
-//     int num_columns;
-//     float* y_values;
-//     wchar_t** column_names;
-
-//     bool staggered_axis_titles;
-//     bool show_values_above_bar;
-//     int sigfigs;
-//     WINDOW * inputwin;
-// }
-
 enum direction {
     NORTH,
     SOUTH,
@@ -63,30 +47,6 @@ void free_barchart(struct barchart* chart) {
     free(chart);
 }
         
-// void draw_axis_name(WINDOW * inputwin,  wchar_t* name, int column, int col_gap, bool staggered){
-//     int x_value = x+(column*col_gap)+2;
-//     int y_value = y + 1;
-//     if(staggered) {
-//         y_value += column;
-//     }
-//     mvwaddwstr(inputwin, y_value, x_value, name);
-// }
-
-// TODO
-// void clear_chart(WINDOW * inputwin, int max_lines, int max_columns, int col_gap, int y, int x){
-// 
-// }
-
-// void draw_max_value(WINDOW * inputwin, int y, int x, float max_value, int sigfigs, int max_lines){
-//     mvwprintw(inputwin, y - max_lines, x - sigfigs - 1, "%*f", sigfigs, max_value);  
-// }
-
-    // // draw number
-    // if(show_val) {
-    //     int length = fmin(col_gap - 1, sigfigs);
-    //     mvwprintw(inputwin, y - ifull_lines-2, x_value, "%*f", length, y_value); 
-    // }
-
 #define X_MARGIN 3
 #define Y_MARGIN 3
 
