@@ -213,7 +213,7 @@ void draw_chart(WINDOW * win, int y, int x, struct barchart* chart) {
         break;
     case EAST:
         gap = height / chart->num_labels;
-        norm = height;
+        norm = width;
         startx = x + chart->xmargin;
         starty = y;
         draw_axis(win, starty, startx - 1, SOUTH, height, gap);
