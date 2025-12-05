@@ -6,6 +6,11 @@
 #include <stddef.h>
 #include <stdlib.h>
 
+struct point {
+    int y;
+    int x;
+};
+
 enum direction {
     NORTH,
     SOUTH,
@@ -92,6 +97,15 @@ void draw_axis(WINDOW * win, int y, int x, enum direction dir, int length, int g
     wmove(win, y, x);
 }
 
+void dirtodelta(struct point* p, enum direction dir) {
+    switch(dir) {
+        case EAST: *p = (struct point) { 0, 1 }; break;
+        case WEST: *p = (struct point) { 0, -1 }; break;
+        case NORTH: *p = (struct point) { -1, 0 }; break;
+        case SOUTH: *p = (struct point) { 1, 0 }; break;
+    };
+}
+
 const wchar_t* _block_symbols[] = {
   L"\u2580",
   L"\u2581",
@@ -128,52 +142,26 @@ void draw_bar(WINDOW * win, int y, int x, enum direction dir, int norm, float ma
 
     float remaining = line_height - full_lines;
 
-    int rem_half = (int)floor(remaining * 2);
     int rem_eights = (int)floor(remaining * 8);
 
     int ifull_lines = (int) full_lines;
 
-    int xdelta = 0;
-    int ydelta = 0;
-    bool display_last = false;
-    wchar_t last_char = L'\u2581';
-    switch(dir) {
-        case NORTH:
-            ydelta = -1;
-            last_char = L'\u2581' + rem_eights;
-            display_last = rem_eights != 0;
-            break;
-        case SOUTH:
-            ydelta = 1;
-            last_char = L'\u2580';
-            display_last = rem_half != 0;
-            break;
-        case EAST:
-            xdelta = 1;
-            last_char = L'\u2590' - rem_eights;
-            display_last = rem_eights != 0;
-            break;
-        case WEST:
-            xdelta = -1;
-            last_char = L'\u2590';
-            display_last = rem_half != 0;
-        break;
-    }
-    wchar_t last_ch_str[2];
-    last_ch_str[0] = last_char; 
-    last_ch_str[1] = L'\0';
+    struct point delta;
+    dirtodelta(&delta, dir);
 
     wmove(win, y, x);
     int ycurr = y;
     int xcurr = x;
     for(int i = 0; i < ifull_lines; i++) {
         waddwstr(win, L"\u2588");
-        ycurr = ycurr + ydelta;
-        xcurr = xcurr + xdelta;
+        ycurr = ycurr + delta.y;
+        xcurr = xcurr + delta.x;
         wmove(win, ycurr, xcurr);
     }
-    if(display_last) {
-        waddwstr(win, last_ch_str);
+    if(rem_eights != 0) {
+        cchar_t last_char;
+        set_end_symbol(&last_char, dir, rem_eights);
+        wadd_wch(win, &last_char);
     }
     wmove(win, y, x);
 }
