@@ -16,20 +16,21 @@ int main() {
 
     box(inputwin, 0, 0);
 
-    struct barchart* chart = alloc_barchart(3);
-    chart->values[0] = 1;
+    struct barchart* chart = alloc_barchart(5);
+    chart->values[0] = 34;
     chart->values[1] = 100;
-    chart->values[2] = 5;
+    chart->values[2] = 20;
+    chart->values[3] = 45;
+    chart->values[4] = 60;
     wchar_t* a = L"a";
     wchar_t* b = L"b";
     wchar_t* c = L"c";
     chart->labels[0] = a;
     chart->labels[1] = b;
     chart->labels[2] = c;
-    chart->values[2] = 56;
-    chart->dir = NORTH;
+    chart->dir = EAST;
     chart->height = yMax / 2;
-    chart->width = xMax / 4;
+    chart->width = xMax / 2;
     draw_chart(inputwin, 5, 10, chart);
     refresh();
     wrefresh(inputwin);
