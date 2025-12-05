@@ -92,6 +92,35 @@ void draw_axis(WINDOW * win, int y, int x, enum direction dir, int length, int g
     wmove(win, y, x);
 }
 
+const wchar_t* _block_symbols[] = {
+  L"\u2580",
+  L"\u2581",
+  L"\u2582",
+  L"\u2583",
+  L"\u2584",
+  L"\u2585",
+  L"\u2586",
+  L"\u2587",
+  L"\u2588",
+  L"\u2589",
+  L"\u258A",
+  L"\u258B",
+  L"\u258C",
+  L"\u258D",
+  L"\u258E",
+  L"\u258F",
+  L"\u2590",
+};
+
+void set_end_symbol(cchar_t* wch, enum direction dir, int eights) {
+    switch(dir) {
+        case NORTH: setcchar(wch, _block_symbols[eights], 0, 0, NULL); break;
+        case SOUTH: setcchar(wch, _block_symbols[8 - eights], A_REVERSE, 0, NULL); break;
+        case EAST: setcchar(wch, _block_symbols[16 - eights], 0, 0, NULL); break;
+        case WEST: setcchar(wch, _block_symbols[8 + eights], A_REVERSE, 0, NULL); break;
+    };
+}
+
 void draw_bar(WINDOW * win, int y, int x, enum direction dir, int norm, float max_value, float value) {
     float line_height = value * norm / max_value;
 
