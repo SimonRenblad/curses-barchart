@@ -12,8 +12,7 @@ void move_wch(WINDOW* win, int y, int x) {
 }
 
 void move_area(WINDOW* win, int y, int x, int height, int width) {
-    int buffer_size = width * height;
-    cchar_t t[buffer_size];
+    cchar_t t[1024];
     int origin_x = getcurx(win);
     int origin_y = getcury(win);
     for(int i = 0; i < width; i++) {
