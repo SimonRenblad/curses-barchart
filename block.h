@@ -1,0 +1,8 @@
+#define FULL L"█"
+#define SEVEN_EIGHTHS L"▉"
+#define THREE_QUARTERS L"▊"
+#define FIVE_EIGHTHS L"▋"
+#define HALF L"▌"
+#define THREE_EIGHTHS L"▍"
+#define ONE_QUARTER L"▎"
+#define ONE_EIGHTH L"▏"

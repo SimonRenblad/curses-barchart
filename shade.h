@@ -1,0 +1,5 @@
+#define EMPTY L" "
+#define LIGHT L"░"
+#define MEDIUM L"▒"
+#define DARK L"▓"
+#define FULL L"█"
