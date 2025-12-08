@@ -34,6 +34,52 @@ wchar_t* BLK_LINE[] = {
   L"▐",
 };
 
+
+
+void calculate_symbols(WINDOW* win, int last, int last_thirds, int curr, int new_thirds) {
+  if(last > curr) {
+    // handle case where last_thirds == 0
+    // go from last_third to -> centre down
+    waddwstr(win, third_to_down[last_thirds]);
+
+    // move down
+
+    // half blocks left until 1 or 2 above
+    for(int i = last + i; i < curr; i++) {
+      waddwstr(win, L"▌");
+      // move down
+    }
+
+    // centre up -> new_third
+    waddwstr(win, centre_to_third[new_thirds]);
+    // 
+
+  } else if(curr > last) {
+    // go from last_third -> centre up
+    waddwstr(win, third_to_up[last_thirds]);
+
+    // move up
+    // half blocks right until thirds left
+    for(int i = last - 1; last > curr; i--) {
+      waddwstr(win, L"▐");
+      // move up
+    }
+
+    // move up
+    // centre down -> new third
+    waddwstr(win, centre_down_to_third[new_thirds]);
+  }
+  if(last == curr) {
+    if(new_thirds == last_thirds) {
+
+    }
+  } else if(last > curr) {
+
+  } else {
+
+  }  
+}
+
 // also need the half blocks and full blocks
 // need a neat way to index based on where it is going
 
